@@ -27,7 +27,7 @@ class VendingMachine
         $this->_insertedMoney += $coin->getValue();
     }
 
-    public function getinsertedMoney(): float
+    public function getInsertedMoney(): float
     {
         return $this->_insertedMoney;
     }
@@ -37,36 +37,6 @@ class VendingMachine
         $returned = $this->calculateChange();
         $this->_insertedMoney = 0.0;
         return $returned;
-    }
-
-    public function vendItem(string $itemName): array
-    {
-        // Check the specific Item exists
-        if(!$this->_availableItems->has($itemName)){
-            throw new \InvalidArgumentException("Invalid item: $itemName");
-        }
-
-        // Get the specific Item
-        $item = $this->_availableItems[$itemName];
-
-        // Check Item's stock
-        if($item->getCount() <= 0){
-            throw new \Exception("Out of stock: $itemName");
-        }
-
-        // Check funds are enough to vend the Item
-        if($this->_insertedMoney < $item->getPrice()){
-            throw new \Exception("Insufficient funds for $itemName");
-        }
-
-        // Start vending process
-        $item->decrementCount(); // Decrease item count by one
-        $changeAmount = $this->_insertedMoney - $item->getPrice(); // Get change amount
-        $change = $this->calculateChange($changeAmount); // Calculate change
-        $this->_insertedMoney = 0.0; // Reset inserted money as it will always return the exceeded amount
-
-        // Return all operation related data
-        return [$itemName, ...$change];
     }
 
     private function calculateChange(): array
@@ -101,6 +71,36 @@ class VendingMachine
         if ($index !== false) {
             $this->_availableChange->forget($index);
         }
+    }
+
+    public function vendItem(string $itemName): array
+    {
+        // Check the specific Item exists
+        if(!$this->_availableItems->has($itemName)){
+            throw new \InvalidArgumentException("Invalid item: $itemName");
+        }
+
+        // Get the specific Item
+        $item = $this->_availableItems[$itemName];
+
+        // Check Item's qty
+        if($item->getCount() <= 0){
+            throw new \Exception("Out of stock: $itemName");
+        }
+
+        // Check funds are enough to vend the Item
+        if($this->_insertedMoney < $item->getPrice()){
+            throw new \Exception("Insufficient funds for $itemName");
+        }
+
+        // Start vending process
+        $item->decrementCount(); // Decrease specific item's count by one
+        $changeAmount = $this->_insertedMoney - $item->getPrice(); // Get change amount
+        $change = $this->calculateChange($changeAmount); // Calculate Coins/change
+        $this->_insertedMoney = 0.0; // Reset inserted money as it will always return the exceeded amount to remain at 0.0
+
+        // Return all operation related data
+        return [$itemName, ...$change];
     }
 
     // Service

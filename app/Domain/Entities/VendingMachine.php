@@ -7,47 +7,47 @@ use Illuminate\Support\Collection;
 
 class VendingMachine
 {
-    private float $insertedMoney = 0.0;
-    private Collection $availableItems; // Collection of Items: Water, Juice, Soda
-    private Collection $availableChange; // Collection of Coin objects
+    private float $_insertedMoney = 0.0;
+    private Collection $_availableItems; // Collection of Items: Water, Juice, Soda
+    private Collection $_availableChange; // Collection of Coin objects
 
     public function __construct()
     {
-        $this->availableItems = collect();
-        $this->availableChange = collect();
+        $this->_availableItems = collect();
+        $this->_availableChange = collect();
 
         // Init items with no count
-        $this->availableItems['Water'] = new WaterItem();
-        $this->availableItems['Juice'] = new JuiceItem();
-        $this->availableItems['Soda'] = new SodaItem();
+        $this->_availableItems['Water'] = new WaterItem();
+        $this->_availableItems['Juice'] = new JuiceItem();
+        $this->_availableItems['Soda'] = new SodaItem();
     }
 
     public function insertCoin(Coin $coin): void
     {
-        $this->insertedMoney += $coin->getValue();
+        $this->_insertedMoney += $coin->getValue();
     }
 
-    public function getInsertedMoney(): float
+    public function getinsertedMoney(): float
     {
-        return $this->insertedMoney;
+        return $this->_insertedMoney;
     }
 
     public function returnCoins(): array
     {
         $returned = $this->calculateChange();
-        $this->insertedMoney = 0.0;
+        $this->_insertedMoney = 0.0;
         return $returned;
     }
 
     public function vendItem(string $itemName): array
     {
         // Check the specific Item exists
-        if(!$this->availableItems->has($itemName)){
+        if(!$this->_availableItems->has($itemName)){
             throw new \InvalidArgumentException("Invalid item: $itemName");
         }
 
         // Get the specific Item
-        $item = $this->availableItems[$itemName];
+        $item = $this->_availableItems[$itemName];
 
         // Check Item's stock
         if($item->getCount() <= 0){
@@ -55,15 +55,15 @@ class VendingMachine
         }
 
         // Check funds are enough to vend the Item
-        if($this->insertedMoney < $item->getPrice()){
+        if($this->_insertedMoney < $item->getPrice()){
             throw new \Exception("Insufficient funds for $itemName");
         }
 
         // Start vending process
         $item->decrementCount(); // Decrease item count by one
-        $changeAmount = $this->insertedMoney - $item->getPrice(); // Get change amount
+        $changeAmount = $this->_insertedMoney - $item->getPrice(); // Get change amount
         $change = $this->calculateChange($changeAmount); // Calculate change
-        $this->insertedMoney = 0.0; // Reset inserted money as it will always return the exceeded amount
+        $this->_insertedMoney = 0.0; // Reset inserted money as it will always return the exceeded amount
 
         // Return all operation related data
         return [$itemName, ...$change];
@@ -71,7 +71,7 @@ class VendingMachine
 
     private function calculateChange(): array
     {
-        $amount = $this->insertedMoney;
+        $amount = $this->_insertedMoney;
         $coins = Coin::getValidValues();
         $change = [];
         foreach($coins as $coinValue){
@@ -92,14 +92,14 @@ class VendingMachine
 
     private function hasChangeCoin(float $value): bool
     {
-        return $this->availableChange->filter(fn($c) => $c->getValue() === $value)->count() > 0;
+        return $this->_availableChange->filter(fn($c) => $c->getValue() === $value)->count() > 0;
     }
 
     private function decrementChangeCoin(float $value): void
     {
-        $index = $this->availableChange->search(fn($c) => $c->getValue() === $value);
+        $index = $this->_availableChange->search(fn($c) => $c->getValue() === $value);
         if ($index !== false) {
-            $this->availableChange->forget($index);
+            $this->_availableChange->forget($index);
         }
     }
 
@@ -107,37 +107,42 @@ class VendingMachine
     public function addItem(string $itemName, int $count): void
     {
         // Items are initialized in constructor, increment count
-        if($this->availableItems->has($itemName)){
-            $this->availableItems[$itemName]->incrementCount($count);
+        if($this->_availableItems->has($itemName)){
+            $this->_availableItems[$itemName]->incrementCount($count);
         }
     }
 
     public function addChange(Coin $coin, int $count): void
     {
         for ($i = 0; $i < $count; $i++) {
-            $this->availableChange->push($coin);
+            $this->_availableChange->push($coin);
         }
     }
 
     // Getters
     public function getAvailableItems(): Collection
     {
-        return $this->availableItems;
+        return $this->_availableItems;
     }
 
     public function getAvailableChange(): Collection
     {
-        return $this->availableChange;
+        return $this->_availableChange;
     }
 
     // Setters
+    public function setInsertedMoney(float $inserted_money): void
+    {
+        $this->_insertedMoney = $$inserted_money;
+    }
+
     public function setAvailableItems(Collection $items): void
     {
-        $this->availableItems = $items;
+        $this->_availableItems = $items;
     }
 
     public function setAvailableChange(Collection $change): void
     {
-        $this->availableChange = $change;
+        $this->_availableChange = $change;
     }
 }

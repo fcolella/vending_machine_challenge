@@ -16,10 +16,10 @@ class VendingMachine
         $this->_availableItems = collect();
         $this->_availableChange = collect();
 
-        // Init items with no count
-        $this->_availableItems['Water'] = new WaterItem();
-        $this->_availableItems['Juice'] = new JuiceItem();
-        $this->_availableItems['Soda'] = new SodaItem();
+        // Init items
+        $this->_availableItems['Water'] = new WaterItem(10);
+        $this->_availableItems['Juice'] = new JuiceItem(10);
+        $this->_availableItems['Soda'] = new SodaItem(10);
     }
 
     public function insertCoin(Coin $coin): void

@@ -21,7 +21,7 @@ class VendingMachineController extends Controller
     public function insertCoin(Request $request, InsertCoinUseCase $useCase): JsonResponse
     {
         $value = $request->input('value');
-        return response()->json(['balance' => $useCase->execute($value)]);
+        return response()->json(['message' => 'Coin inserted', 'balance' => $useCase->execute($value)]);
     }
 
     public function returnCoin(ReturnCoinsUseCase $useCase): JsonResponse

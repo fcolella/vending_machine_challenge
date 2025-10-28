@@ -33,7 +33,7 @@ docker-compose exec app php artisan migrate
 
 ### 4. Seed initial data (items + change)
 ```
-docker-compose exec app php artisan db:seed --class=TestVendingSeeder
+docker-compose exec app php artisan db:seed --class=InitialVendingMachineSeeder
 ```
 
 > **Note**: The seeder creates:
@@ -51,7 +51,9 @@ docker-compose exec app php artisan db:seed --class=TestVendingSeeder
 
 Tests use SQLite in-memory and run migrations + seeding automatically.
 
+```
 docker-compose exec app composer test
+```
 
 ## Project Structure (Hexagonal)
 ```

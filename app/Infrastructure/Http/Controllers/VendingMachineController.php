@@ -3,8 +3,9 @@
 namespace App\Infrastructure\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Application\UseCases\GetVendingMachineStateUseCase;
 use App\Application\UseCases\InsertCoinUseCase;
-use App\Application\UseCases\ReturnCoinUseCase;
+use App\Application\UseCases\ReturnCoinsUseCase;
 use App\Application\UseCases\VendItemUseCase;
 use App\Application\UseCases\ServiceRestockUseCase;
 use Illuminate\Http\Request;
@@ -12,25 +13,29 @@ use Illuminate\Http\JsonResponse;
 
 class VendingMachineController extends Controller
 {
+    public function getVendingMachineState(GetVendingMachineStateUseCase $machine): JsonResponse
+    {
+        return response()->json($machine->execute());
+    }
+
     public function insertCoin(Request $request, InsertCoinUseCase $useCase): JsonResponse
     {
         $value = $request->input('value');
-        $useCase->execute($value);
-        return response()->json(['message' => 'Coin inserted']);
+        return response()->json(['balance' => $useCase->execute($value)]);
     }
 
-    public function returnCoin(ReturnCoinUseCase $useCase): JsonResponse
+    public function returnCoin(ReturnCoinsUseCase $useCase): JsonResponse
     {
-        $returned = $useCase->execute();
-        return response()->json(['returned' => $returned]);
+        $returned_coins = $useCase->execute();
+        return response()->json(['coins' => $returned_coins]);
     }
 
     public function vendItem(Request $request, VendItemUseCase $useCase): JsonResponse
     {
         $item = $request->input('item');
         try{
-            $result = $useCase->execute($item);
-            return response()->json(['result' => $result]);
+            $change = $useCase->execute($item);
+            return response()->json(['change' => $change]);
         }catch(\Exception $e){
             return response()->json(['error' => $e->getMessage()], 400);
         }

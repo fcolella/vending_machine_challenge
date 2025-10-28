@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Infrastructure\Persistence\Eloquent\Models\ItemModel;
 use App\Infrastructure\Persistence\Eloquent\Models\CoinModel;
 
-class InitialVendingSeeder extends Seeder
+class InitialVendingMachineSeeder extends Seeder
 {
     public function run(): void
     {

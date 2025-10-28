@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Infrastructure\Http\Controllers\VendingMachineController;
 
+Route::get('/machine-state', [VendingMachineController::class, 'getVendingMachineState']);
 Route::post('/insert-coin', [VendingMachineController::class, 'insertCoin']);
 Route::post('/return-coin', [VendingMachineController::class, 'returnCoin']);
 Route::post('/vend-item', [VendingMachineController::class, 'vendItem']);

@@ -76,11 +76,11 @@ class VendingMachineEloquentRepository implements VendingMachineRepositoryInterf
         }
 
         // Save Coins/change to the DB (group by value to update quantity)
-        $change = $machine->getAvailableChange()->groupBy(fn($c) => $c->getValue());
-        foreach($change as $value => $group){
+        $change = $machine->getAvailableChange()->map(fn($coin) => number_format($coin->getValue(), 2, '.', ''))->countBy()->toArray();
+        foreach($change as $value => $count){
             CoinModel::updateOrCreate(
                 ['value' => $value],
-                ['count' => $group->count()] // Update the quantity for current Coin value
+                ['count' => $count] // Update the quantity for current Coin value
             );
         }
 

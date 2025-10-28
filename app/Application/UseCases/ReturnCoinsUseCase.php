@@ -4,7 +4,7 @@ namespace App\Application\UseCases;
 
 use App\Domain\Repositories\VendingMachineRepositoryInterface;
 
-class ReturnCoinUseCase
+class ReturnCoinsUseCase
 {
     private VendingMachineRepositoryInterface $repository;
 

@@ -24,7 +24,7 @@ class VendingMachine
 
     public function insertCoin(Coin $coin): void
     {
-        $this->_insertedMoney += $coin->getValue();
+        $this->_insertedMoney += $coin->getValue(); // Inserted Coins by the end user are not added as Change
     }
 
     public function getInsertedMoney(): float
@@ -34,26 +34,29 @@ class VendingMachine
 
     public function returnCoins(): array
     {
-        $returned = $this->calculateChange();
+        $returned = $this->calculateChange($this->_insertedMoney);
         $this->_insertedMoney = 0.0;
         return $returned;
     }
 
-    private function calculateChange(): array
+    private function calculateChange(float $amount): array
     {
-        $amount = $this->_insertedMoney;
+        $amountCents = (int) round($amount * 100); // convert to cents to avoid floating point precision issues
         $coins = Coin::getValidValues();
         $change = [];
+
         foreach($coins as $coinValue){
-            while($amount >= $coinValue && $this->hasChangeCoin($coinValue)){ // amount inserted is more than current coin value and there are coins of this value available
-                $change[] = $coinValue; // Add one of these coins to change
-                $amount -= $coinValue; // Decrease amount left to return
-                $this->decrementChangeCoin($coinValue); // Remove one of these coins from available change
+            $coinCents = (int) round($coinValue * 100); // convert to cents to avoid floating point precision issues
+
+            while($amountCents >= $coinCents && $this->hasChangeCoin($coinValue)){
+                $change[] = $coinValue;
+                $amountCents -= $coinCents;
+                $this->decrementChangeCoin($coinValue);
             }
         }
 
         // Alert if machine is unable to return change in full
-        if($amount > 0){
+        if($amountCents > 0){
             throw new \Exception("Insufficient change available");
         }
 
@@ -100,7 +103,7 @@ class VendingMachine
         $this->_insertedMoney = 0.0; // Reset inserted money as it will always return the exceeded amount to remain at 0.0
 
         // Return all operation related data
-        return [$itemName, ...$change];
+        return $change;
     }
 
     // Service
@@ -133,7 +136,7 @@ class VendingMachine
     // Setters
     public function setInsertedMoney(float $inserted_money): void
     {
-        $this->_insertedMoney = $$inserted_money;
+        $this->_insertedMoney = $inserted_money;
     }
 
     public function setAvailableItems(Collection $items): void

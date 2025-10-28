@@ -15,11 +15,13 @@ class InsertCoinUseCase
         $this->repository = $repository;
     }
 
-    public function execute(float $value): void
+    public function execute(float $value): float
     {
         $machine = $this->repository->find(); // Assumed only one machine
         $coin = new Coin($value); // Init Value Object with a given float (validated in the VO)
         $machine->insertCoin($coin);
         $this->repository->save($machine);
+
+        return $machine->getInsertedMoney();
     }
 }

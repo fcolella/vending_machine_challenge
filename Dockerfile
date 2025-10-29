@@ -1,26 +1,38 @@
 FROM php:8.3-fpm
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
+    git \
+    curl \
     libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
     zip \
-    unzip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql
+    unzip
 
-# Install Composer
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+# Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www
 
-# Copy project
+# Copy project files
 COPY . /var/www
 
-# Install Laravel dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Install dependencies
+RUN composer install --optimize-autoloader --no-dev --no-interaction
 
-# Permissions
+# Set permissions
 RUN chown -R www-data:www-data /var/www
+RUN chmod -R 755 /var/www/storage
+
+# Expose port (not needed for fpm, but good practice)
+EXPOSE 9000
+
+CMD ["php-fpm"]

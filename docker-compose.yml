@@ -7,9 +7,9 @@ services:
     image: vending-machine-app
     container_name: vending-machine-app
     restart: unless-stopped
-    working_dir: /var/www/
-    volumes:
-      - .:/var/www
+    working_dir: /var/www
+    depends_on:
+          - db
     networks:
       - vending-machine-network
 
